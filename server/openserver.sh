@@ -1,0 +1,1 @@
+docker run -p 9300:9300  -v $(pwd)/config:/root/.conan_server/ conanio/conan_server 
