@@ -11,7 +11,7 @@ class nanos6Proxy(ConanFile):
     settings = "compiler", "arch"
     build_policy="always"
     options = {"target":"ANY", "nanos6":"ANY", "monitoring":[True, False], "cluster":[True, False], "cuda":[True, False]}
-    default_options = {"nanos6":"2019.6", "target":"armv8", "monitoring":False, "cluster":False, "cuda":False}
+    default_options = {"nanos6":"fpga", "target":"armv8", "monitoring":False, "cluster":False, "cuda":False}
 
     def bashrun(self, command):
         self.run("bash -c \"{0}\"".format(command))

@@ -2,15 +2,15 @@ from conans import ConanFile, AutoToolsBuildEnvironment, tools
 import os
 
 class PapiConan(ConanFile):
-    name = "Papi"
-    version = "5.7.0"
+    name = "papi"
+    version = "6.0.0"
     license = "MIT"
     url = "https://bitbucket.org/icl/papi.git"
     description = "The Performance Application Programming Interface (PAPI) provides tool designers and application engineers with a consistent interface and methodology for the use of low-level performance counter hardware"
     settings = "os", "compiler", "build_type", "arch"
 
     def source(self):
-        self.run("git clone https://bitbucket.org/icl/papi.git")
+        self.run("git clone -b papi-6-0-0-t https://bitbucket.org/icl/papi.git")
 
     def build(self):
         os.chdir("papi/src")
@@ -18,7 +18,22 @@ class PapiConan(ConanFile):
         autotools.fpic = True
         vars = autotools.vars
         vars["LIBS"] = "-ldl"
-        autotools.configure(args=["--with-shared-lib=yes"])
+        env_build_vars = autotools.vars
+        env_build_vars['CFLAGS'] = '-Wno-error'
+        env_build_vars['CPPFLAGS'] = '-Wno-error'
+
+        args=[
+            "--prefix={}".format(tools.unix_path(self.package_folder)),
+            "--with-ffsll",
+            "--host=aarch64-linux-gnu",
+            "--with-arch=aarch64",
+            "--with-CPU=arm",
+            "--with-walltimer=cycle",
+            "-with-tls=__thread",
+            "--with-virtualtimer=perfctr",
+            "--with-perf-events"
+             ]
+        autotools.configure(args=args, vars=env_build_vars)
         autotools.make(vars=vars)
 
     def package(self):

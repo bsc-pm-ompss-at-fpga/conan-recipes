@@ -5,15 +5,15 @@ import os
 import multiprocessing
 from shutil import copyfile
 
-class Nanos6Conan(ConanFile):
+class Nanos5Conan(ConanFile):
     name = "nanos5_internal"
-    version = "fpga"
+    version = "2.2.0"
     git_clone_name = "nanos5_source"
     git_url = "https://pm.bsc.es/gitlab/ompss-at-fpga/nanox"
 
     settings = "os", "compiler", "build_type", "arch"
 
-    requires = ["xtasks/2.2.0", "ait/2.2.0"]
+    requires = ["xtasks/2.2.0-stub", "extrae/2.2.0"]
     build_policy="missing"
     _autotools = None
 
@@ -63,10 +63,5 @@ class Nanos6Conan(ConanFile):
         self.env_info.NANOS6_INCLUDE=self.package_folder+"/include"
         self.env_info.NANOS6_HOME= self.package_folder
         self.env_info.NANOS6_LIBS=self.package_folder+"/lib"
-
-
-if __name__ == "__main__":
-    os.system('conan create . nanos5_internal/fpga@_/_ --build=missing -s arch=armv8 ')
-    os.system('conan upload --all nanos5_internal/fpga@_/_ -r demo') 
 
 

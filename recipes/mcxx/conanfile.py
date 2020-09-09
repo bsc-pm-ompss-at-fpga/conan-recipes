@@ -16,27 +16,27 @@ import subprocess
 class McxxConan(ConanFile):
     git_clone_name = "mcxx_source"
     name = "mcxx"
-    version = "2.2.0"
+    version = "latest"
     settings = "compiler", "arch", "arch_build"
     
-    git_url = "https://pm.bsc.es/gitlab/mercurium/mcxx"
-
+    git_url = "https://pm.bsc.es/gitlab/ompss-at-fpga/mcxx"
+    git_branch = "ompss-at-fpga-release/2.2.0"
     build_requires = ["sqlite3/3.30.1"]
     build_policy="missing"
 
-    options = {"target":"ANY", "nanos6":"ANY", "nanos5":"ANY", "papi": [True, False], "cluster": [True, False]}
-    default_options = {"nanos6":"2019.6", "target":"aarch64",  "nanos5":"latest", "papi": False, "cluster": False}
+    options = {"target":"ANY", "nanos6":"ANY", "nanos5":"ANY"}
+    default_options = {"nanos6":None, "target":"aarch64",  "nanos5":"2.2.0"}
 
     _autotools = None
 
     def requirements(self):
         if self.options.nanos6 != "None":
-            self.requires("nanos6/latest")
+            self.requires("nanos6/{}".format(str(self.options.nanos6)))
 
 
         print(self.options.nanos5)
         if self.options.nanos5 != "None":
-            self.requires("nanos5/2.2.0")
+            self.requires("nanos5/{}".format(str(self.options.nanos5)))
 
     def configure(self):
         if self.options.target != "None":
@@ -48,7 +48,7 @@ class McxxConan(ConanFile):
             self.options["nanos5"].target = self.settings.arch_build
 
     def source(self):
-        self.run("git clone {} {} ".format(self.git_url, self.git_clone_name))
+        self.run("git clone --depth 1 --branch  {} {} {} ".format(self.git_branch, self.git_url, self.git_clone_name))
 
     @property
     def _datarootdir(self):
@@ -66,6 +66,7 @@ class McxxConan(ConanFile):
         "--prefix={}".format(tools.unix_path(self.package_folder)),
         'sqlite3_CFLAGS=-I%s'%self.deps_cpp_info["sqlite3"].rootpath+"/include",
         'sqlite3_LIBS=-L'+self.deps_cpp_info["sqlite3"].rootpath+"/lib",
+        '--enable-bison-regeneration'
         ]
 
         if self.options.nanos6 != "None":

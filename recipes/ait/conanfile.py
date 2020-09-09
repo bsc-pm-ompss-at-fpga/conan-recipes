@@ -15,10 +15,12 @@ class Ait(ConanFile):
     git_branch =  "ompss-at-fpga-release/2.2.0"
 
     options = {"mode":"ANY", "backend":"ANY"}
-    default_options = {"mode":"all", "backend":"all"}
+    default_options = {"mode":"public", "backend":"all"}
+
+    build_policy="missing"
 
     def source(self):
-        self.run("git clone -b {0} {1} {2}".format(self.git_branch, self.git_url, self.git_clone_name))
+        self.run("git clone -b {0} {1} {2} && cd {2} && git lfs install && git lfs fetch && git lfs pull".format(self.git_branch, self.git_url, self.git_clone_name))
 
     def build(self):
         tempdir = tempfile.mkdtemp()
@@ -29,7 +31,3 @@ class Ait(ConanFile):
 
     def package_info(self):
         self.env_info.path.append(self.package_folder)
-
-if __name__ == "__main__":
-    os.system('conan create . ait/2.2.0@_/_')
-    os.system('conan upload --all ait/2.2.0@_/_ -r demo') 
