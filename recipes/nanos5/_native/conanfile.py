@@ -4,6 +4,7 @@ import pathlib
 import os
 import multiprocessing
 from shutil import copyfile
+import platform
 
 class Nanos5Conan(ConanFile):
     name = "nanos5_internal"
@@ -35,9 +36,15 @@ class Nanos5Conan(ConanFile):
         "--datarootdir={}".format(tools.unix_path(self._datarootdir)),
         "--prefix={}".format(tools.unix_path(self.package_folder)),
         '--with-xtasks=%s' % self.deps_cpp_info["xtasks"].rootpath,
+        '--with-extrae={}'.format(self.deps_cpp_info["extrae"].rootpath)
         ]
         self._autotools.cxx_flags.append("-Wno-unused-variable")
-        self._autotools.configure(args=args, configure_dir=self.source_folder+"/%s"%self.git_clone_name)
+        
+        if(str(self.settings.arch) == platform.machine()):
+            self._autotools.configure(args=args, configure_dir=self.source_folder+"/%s"%self.git_clone_name, host=False, build=False, target=False)
+        else:
+            self._autotools.configure(args=args, configure_dir=self.source_folder+"/%s"%self.git_clone_name)
+
         return self._autotools
         
 
@@ -63,5 +70,6 @@ class Nanos5Conan(ConanFile):
         self.env_info.NANOS6_INCLUDE=self.package_folder+"/include"
         self.env_info.NANOS6_HOME= self.package_folder
         self.env_info.NANOS6_LIBS=self.package_folder+"/lib"
+        self.env_info.LD_LIBRARY_PATH.append(self.package_folder+"/lib")
 
 

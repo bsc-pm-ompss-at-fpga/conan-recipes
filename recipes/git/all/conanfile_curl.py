@@ -49,6 +49,7 @@ class GitConan(ConanFile):
         tools.get(**self.conan_data["sources"][self.version])
         extracted_dir = "git-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
+        
 
     def build(self):
         self.run(self._commonCommandCompileGit(""))
@@ -57,7 +58,16 @@ class GitConan(ConanFile):
     def package(self): 
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         self.run(self._commonCommandCompileGit("install"))
+        
+        
+        if str(self.settings.arch) == "armv8":
+            filename = "git-lfs-linux-arm64-v2.12.0"
+        elif str(self.settings.arch) == "x86_64":
+            filename = "git-lfs-linux-amd64-v2.12.0"
 
+        tools.get("https://github.com/git-lfs/git-lfs/releases/download/v2.12.0/{}.tar.gz".format(filename))
+        os.rename(filename, "gitlfs")
+        self.run("cd gitlfs && PREFIX={} ./install.sh && cd .. && rm -rf gitlfs ".format(tools.unix_path(self.package_folder)))
 
     def package_info(self):
         self.env_info.path.append(os.path.join(self.package_folder, "bin"))

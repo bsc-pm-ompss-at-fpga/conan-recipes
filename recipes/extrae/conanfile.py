@@ -13,8 +13,8 @@ class Extrae(ConanFile):
     git_branch =  "ompss-at-fpga-release/2.2.0"
     settings = "os", "compiler", "build_type", "arch"
     build_policy="missing"
-    requires = ["papi/5.7.0"]
-    build_requires = ["boost/1.73.0", "binutils/2.32", "libxml2/2.9.10"]
+    requires = ["papi/6.0.0"]
+    build_requires = ["boost/1.73.0", "binutils/2.31", "libxml2/bsc", "zlib/bsc"]
     build_policy="missing"
 
     _autotools = None
@@ -35,39 +35,45 @@ class Extrae(ConanFile):
         if self._autotools:
             return self._autotools
         
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+
+        print(self.deps_cpp_info["papi"].rootpath)
+        self._autotools = True
         args =[
+        "--without-mpi",
+        "--without-unwind",
+        "--without-dyninst",
         "--datarootdir={}".format(tools.unix_path(self._datarootdir)),
         "--prefix={}".format(tools.unix_path(self.package_folder)),
-        '--enable-arm64'
-        '--with-papi={}'.format(self.deps_cpp_info["papi"].rootpath),
+        '--with-papi={} '.format(self.deps_cpp_info["papi"].rootpath),
+        '--with-libz={}'.format(self.deps_cpp_info["zlib"].rootpath),
         '--with-binutils={}'.format(self.deps_cpp_info["binutils"].rootpath),
-        '--without-mpi',
-        '--without-unwind',
-        '--without-dyninst'
         ]
+        
+        if str(self.settings.arch) == "armv8":
+            args.append("--enable-arm64")
+            args.append("--host=aarch64-linux-gnu")
+        else:
+            args.append("--host="+str(self.settings.arch)+"-linux-gnu")
 
-                
-        self._autotools.configure(args=args, configure_dir=self.source_folder+"/%s"%self.git_clone_name)
+        print(' '.join(map(str, args)) )
+        self.run("LD_LIBRARY_PATH={} ./configure {}".format(self.deps_cpp_info["zlib"].rootpath+"/lib",' '.join(map(str, args)) ), run_environment=True)
         return self._autotools
         
 
     def build(self):
+        os.chdir(self.build_folder+"/"+self.git_clone_name)
         if "PKGM4" in os.environ:
-            self.run("cd {0}/{1} &&  autoreconf -fiv -I{2}".format(self.source_folder, self.git_clone_name, os.environ["PKGM4"])) 
+            self.run("cd {0}/{1} &&  autoreconf -fiv -I{2}".format(self.build_folder, self.git_clone_name, os.environ["PKGM4"])) 
         else:
-            self.run("cd {0}/{1} &&  autoreconf -fiv".format(self.source_folder, self.git_clone_name)) 
-        autotools = self._configure_autotools()
-        autotools.make()
+            self.run("cd {0}/{1} &&  autoreconf -fiv".format(self.build_folder, self.git_clone_name)) 
+        self._configure_autotools()
+        self.run("cd {}  && make -j".format(self.build_folder+"/"+self.git_clone_name))
      
-    def package(self): 
+    def package(self):
+        os.chdir(self.build_folder+"/"+self.git_clone_name)
         autotools = self._configure_autotools()
-        autotools.install()
-        self.run("echo {0} > {0}/first_package_path".format(self.package_folder))
+        self.run("cd {}  && make install".format(self.build_folder+"/"+self.git_clone_name))
 
 
     def package_info(self):
-        self.env_info.NANOS6_INCLUDE=self.package_folder+"/include"
-        self.env_info.NANOS6_HOME= self.package_folder
-        self.env_info.NANOS6_LIBS=self.package_folder+"/lib"
-
+        self.env_info.LD_LIBRARY_PATH.append(self.package_folder+"/lib")

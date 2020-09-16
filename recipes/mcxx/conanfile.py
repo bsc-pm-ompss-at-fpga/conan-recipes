@@ -41,8 +41,8 @@ class McxxConan(ConanFile):
     def configure(self):
         if self.options.target != "None":
             if self.options.target == "aarch64":
-                self.options["nanos6"].target = "armv8"
-                self.options["nanos5"].target = "armv8"
+                self.options["nanos6"].target = "aarch64"
+                self.options["nanos5"].target = "aarch64"
         else:
             self.options["nanos6"].target = self.settings.arch_build
             self.options["nanos5"].target = self.settings.arch_build

@@ -32,7 +32,7 @@ class GitConan(ConanFile):
 
     def _commonCommandCompileGit(self, install):
         self.build_requires
-        ldflags = "-L{0} -L{1} -L{2} ".format(self.deps_cpp_info["libtool"].rootpath+"/lib",self.deps_cpp_info["openssl"].rootpath+"/lib",self.deps_cpp_info["expat"].rootpath+"/lib" )
+        ldflags = "-L{0} -L{1} -L{2} -Wl,--no-as-needed -ldl".format(self.deps_cpp_info["libtool"].rootpath+"/lib",self.deps_cpp_info["openssl"].rootpath+"/lib",self.deps_cpp_info["expat"].rootpath+"/lib" )
         return "cd {0}/{1} && make  -j$(nproc)  {2} prefix={3} LDFLAGS=\"{4}\" OPENSSLDIR={5} EXPATDIR={6}  NO_CURL=1".format(
             self.source_folder,
             self._source_subfolder,
@@ -55,7 +55,14 @@ class GitConan(ConanFile):
     def package(self): 
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         self.run(self._commonCommandCompileGit("install"))
+  
+        if str(self.settings.arch) == "armv8":
+            filename = "git-lfs-linux-arm64-v2.12.0"
+        elif str(self.settings.arch) == "x86_64":
+            filename = "git-lfs-linux-amd64-v2.12.0"
 
+        urldown = "https://github.com/git-lfs/git-lfs/releases/download/v2.12.0/{}.tar.gz".format(filename)
+        self.run("mkdir down && wget {0} && tar xf {1}.tar.gz && PREFIX={2} ./install.sh && cd .. && rm -rf down".format(urldown,filename,str(self.package_folder)))
 
     def package_info(self):
         self.env_info.path.append(os.path.join(self.package_folder, "bin"))

@@ -11,7 +11,7 @@ class nanos5Proxy(ConanFile):
     settings = "compiler", "arch"
     build_policy="always"
     options = {"target":"ANY"}
-    default_options = {"target":"armv8"} 
+    default_options = {"target":"aarch64"} 
 
     def bashrun(self, command):
         self.run("bash -c \"{0}\"".format(command))
@@ -19,17 +19,21 @@ class nanos5Proxy(ConanFile):
     def joincmd(self, command1, command2):
         return command1+" && "+command2
 
-    def Nanos6InstallCommand(self):
+    def Nanos5InstallCommand(self):
+        rarch = str(self.options.target)
+        if rarch == "aarch64":
+            rarch = "armv8"
         cmd = "cd {0} && ".format(self.build_folder)
-        cmd = cmd + "conan install -s arch={0} ".format(str(self.options.target))
+        cmd = cmd + "conan install -s arch={0} ".format(rarch)
         cmd = cmd + " nanos5_internal/2.2.0@_/_"
         cmd = cmd + " --build=missing -g deploy "
         return cmd
 
     def package(self):
-        self.bashrun(self.Nanos6InstallCommand())
-        self.bashrun("cd {} && cp -r nanos5_internal/* xtasks/*  {}".format(self.build_folder, self.package_folder))
-        self.bashrun("echo {0} > {0}/first_package_path".format(self.package_folder))
+        self.bashrun(self.Nanos5InstallCommand())
+        self.bashrun("rm {0}/papi/bin".format(self.build_folder))
+        self.bashrun("cd {0} &&  cp -r nanos5_internal/* xtasks/* papi/* extrae/* {1} && cp {1}/lib/libxtasks.so* {1}/lib/performance/ && cp {1}/lib/libxtasks.so* {1}/lib/debug/ && cp {1}/lib/libxtasks.so* {1}/lib/instrumentation".format(self.build_folder, self.package_folder))
+        self.bashrun("cd {0} &&  cp {1}/lib/libpapi.so* {1}/lib/performance/  && cp {1}/lib/libpapi.so* {1}/lib/debug && cp {1}/lib/libpapi.so* {1}/lib/instrumentation".format(self.build_folder, self.package_folder))
 
     def package_info(self):
         self.env_info.LD_LIBRARY_PATH.append(self.package_folder+"/lib")

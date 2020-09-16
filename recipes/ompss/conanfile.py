@@ -19,3 +19,8 @@ class OmpSs(ConanFile):
         self.options["mcxx"].nanos6=None
         self.options["mcxx"].target=self.options.target
 
+    def package_info(self):
+        self.env_info.LD_LIBRARY_PATH.append(self.deps_cpp_info["nanos5"].rootpath+"/lib/performance")
+        self.env_info.LD_LIBRARY_PATH.append(self.deps_cpp_info["nanos5"].rootpath+"/lib/debug")
+        self.env_info.LD_LIBRARY_PATH.append(self.deps_cpp_info["nanos5"].rootpath+"/lib/instrumentation")
+        self.env_info.path.append(self.package_folder)
