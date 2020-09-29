@@ -50,6 +50,9 @@ class PapiConan(ConanFile):
         os.chdir("papi/src")
         autotools = self._configure_autotools()
         autotools.make()
+        
+    def patchSo(self, libpath, newpath):
+        self.run("patchelf --set-rpath {} {}".format(newpath, libpath))
 
     def package(self): 
         os.chdir("papi/src")
@@ -59,3 +62,4 @@ class PapiConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["papi"]
         self.env_info.LD_LIBRARY_PATH.append(self.package_folder+"/lib")
+        self.patchSo(self.package_folder+"/lib/libpapi.so", self.package_folder+"/lib")

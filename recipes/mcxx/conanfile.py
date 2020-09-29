@@ -54,6 +54,10 @@ class McxxConan(ConanFile):
     def _datarootdir(self):
         return os.path.join(self.package_folder, "share")
 
+    def _getNanos5Path(self, rpth):
+        with open(rpth+"/nanos5_internal_path") as f:
+            return f.readline().rstrip()
+        
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
@@ -76,7 +80,7 @@ class McxxConan(ConanFile):
         if self.options.nanos5 != "None":
             args.append("--enable-ompss")
             args.append("--enable-tl-openmp-nanox")
-            args.append("--with-nanox={}".format(self.deps_cpp_info["nanos5"].rootpath))
+            args.append("--with-nanox={}".format(self._getNanos5Path(self.deps_cpp_info["nanos5"].rootpath)))
 
 
         if self.options.target != "None":
@@ -94,7 +98,6 @@ class McxxConan(ConanFile):
     def package(self): 
         autotools = self._configure_autotools()
         autotools.install()
-        self.run("echo {0} > {0}/first_package_path".format(self.package_folder))
 
 
     def package_info(self):
@@ -107,8 +110,6 @@ class McxxConan(ConanFile):
             self.env_info.MCC=self.package_folder+"/bin/mcc"
             self.env_info.MCXX=self.package_folder+"/bin/mcxx"
 
-        #with open(self.deps_cpp_info["nanos6"].rootpath+'/first_package_path') as f: 
-        #    first_line_nanos6 = f.readline() 
         file_to_edit = "{0}/share/mcxx/config.d/10.config.omp-base".format(self.package_folder)
         file_to_edit2 = "{0}/share/mcxx/config.d/50.config.omp.mercurium".format(self.package_folder)
         file_to_edit3 = "{0}/share/mcxx/config.d/40.config.cuda".format(self.package_folder)

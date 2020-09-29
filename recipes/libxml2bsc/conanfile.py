@@ -20,6 +20,10 @@ class Libxml2Conan(ConanFile):
     requires = ["zlib/bsc", "lzma/5.2.4@bincrafters/stable"]
     _autotools = None
 
+    def configure(self):
+        self.options["lzma"].shared = True
+
+
     def source(self):
         source_url = "https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.9.8/libxml2-v2.9.8.tar.gz"
         tools.get(source_url)
@@ -62,6 +66,7 @@ class Libxml2Conan(ConanFile):
         os.chdir(self._source_subfolder)
         self._configure_autotools()
         self.run("make install -j")
+        self.run("cd {} && rm -rf *.la".format(self.package_folder+"/lib"))
 
 
     def _create_tool_var(self, name, value):

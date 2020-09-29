@@ -3,6 +3,7 @@ import pathlib
 import os
 import multiprocessing
 from shutil import copyfile
+import subprocess
 
 class nanos5Proxy(ConanFile):
     
@@ -23,18 +24,17 @@ class nanos5Proxy(ConanFile):
         rarch = str(self.options.target)
         if rarch == "aarch64":
             rarch = "armv8"
-        cmd = "cd {0} && ".format(self.build_folder)
+        cmd = "cd {0} && ".format(self.package_folder)
         cmd = cmd + "conan install -s arch={0} ".format(rarch)
         cmd = cmd + " nanos5_internal/2.2.0@_/_"
-        cmd = cmd + " --build=missing -g deploy "
+        cmd = cmd + " --build=missing -g txt"
         return cmd
+
 
     def package(self):
         self.bashrun(self.Nanos5InstallCommand())
-        self.bashrun("rm {0}/papi/bin".format(self.build_folder))
-        self.bashrun("cd {0} &&  cp -r nanos5_internal/* xtasks/* papi/* extrae/* {1} && cp {1}/lib/libxtasks.so* {1}/lib/performance/ && cp {1}/lib/libxtasks.so* {1}/lib/debug/ && cp {1}/lib/libxtasks.so* {1}/lib/instrumentation".format(self.build_folder, self.package_folder))
-        self.bashrun("cd {0} &&  cp {1}/lib/libpapi.so* {1}/lib/performance/  && cp {1}/lib/libpapi.so* {1}/lib/debug && cp {1}/lib/libpapi.so* {1}/lib/instrumentation".format(self.build_folder, self.package_folder))
+        command = "cd {} && cat conanbuildinfo.txt | grep rootpath_nanos5_internal -A1 | tail -n 1  | cat > nanos5_internal_path".format(self.package_folder)
+        self.run(command)
 
     def package_info(self):
-        self.env_info.LD_LIBRARY_PATH.append(self.package_folder+"/lib")
         self.env_info.path.append(self.package_folder)

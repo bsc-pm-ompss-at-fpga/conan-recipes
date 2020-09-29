@@ -31,7 +31,6 @@ class nanos6Proxy(ConanFile):
     def package(self):
         self.bashrun(self.Nanos6InstallCommand())
         self.bashrun("cd {} &&  cp -r nanos6_internal/* hwloc/* numactl/* {} ".format(self.build_folder, self.package_folder))
-        self.bashrun("echo {0} > {0}/first_package_path".format(self.package_folder))
 
     def package_info(self):
         self.env_info.LD_LIBRARY_PATH.append(self.package_folder+"/lib")

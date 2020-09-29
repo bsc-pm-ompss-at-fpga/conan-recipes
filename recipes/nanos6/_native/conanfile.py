@@ -71,7 +71,30 @@ class Nanos6Conan(ConanFile):
     def package(self): 
         autotools = self._configure_autotools()
         autotools.install()
-        self.run("echo {0} > {0}/first_package_path".format(self.package_folder))
+        self.run("cd {} && rm -rf *.la".format(self.package_folder+"/lib/debug"))
+        self.run("cd {} && rm -rf *.la".format(self.package_folder+"/lib/performance"))
+        self.run("cd {} && rm -rf *.la".format(self.package_folder+"/lib/instrumentation"))
+
+    def getRunPath(self, file):
+        command = "readelf -d {} | grep runpath || true".format(file)
+        uname = subprocess.check_output(command, shell=True).decode()
+        prog = re.compile("(?<=\\[).+?(?=\\])")
+        result = prog.search(uname)
+        return result.group(0)
+
+    def patchRunPath(self, file):
+        home_dir =  str(subprocess.check_output("conan config home", shell=True)).replace(".conan","").replace("b'","").replace("\\n'","").replace("/","\\/")
+        rpath = self.getRunPath(file)
+        old_home_dir = rpath[:rpath.find(".conan")]
+        modified_rpath = rpath.replace(old_home_dir,home_dir)
+        self.run("patchelf --set-rpath {} {}".format(modified_rpath, file))
+
+    def patchAllInFolder(self, directory):
+        for filename in os.listdir(directory):
+            if filename.endswith(".so"):
+                self.patchRunPath(os.path.join(directory, filename))
+            else:
+                continue
 
 
     def package_info(self):
@@ -82,6 +105,9 @@ class Nanos6Conan(ConanFile):
         self.env_info.NANOS6_INCLUDE=self.package_folder+"/include"
         self.env_info.NANOS6_HOME= self.package_folder
         self.env_info.NANOS6_LIBS=self.package_folder+"/lib"
+        self.patchAllInFolder(self.package_folder+"/lib/debug")
+        self.patchAllInFolder(self.package_folder+"/lib/performance")
+        self.patchAllInFolder(self.package_folder+"/lib/instrumentation")
 
 
 if __name__ == "__main__":
