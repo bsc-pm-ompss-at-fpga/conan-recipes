@@ -1,0 +1,1 @@
+This conanfile is an adaptation of the libz conanfile from conan-center-index

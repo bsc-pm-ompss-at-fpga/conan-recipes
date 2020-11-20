@@ -1,0 +1,1 @@
+[This folder is taken from https://github.com/conan-io/conan-docker-tools/tree/master/conan_server](https://github.com/conan-io/conan-docker-tools/tree/master/conan_server).
