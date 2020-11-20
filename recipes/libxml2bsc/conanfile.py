@@ -17,7 +17,7 @@ class Libxml2Conan(ConanFile):
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
     build_policy="missing"
-    requires = ["zlib/bsc", "lzma/5.2.4@bincrafters/stable"]
+    requires = ["zlib/bsc"]
     _autotools = None
 
     def configure(self):
@@ -47,11 +47,10 @@ class Libxml2Conan(ConanFile):
         else:
             host = "--host="+str(self.settings.arch)+"-linux-gnu"
 
-        self.run("./configure {} {} {} {} {}".format(
+        self.run("WITH_LZMA=0 ./configure {} {} {} {}".format(
             "--prefix={}".format(tools.unix_path(self.package_folder)),
             "--without-python",
              "--with-zlib={}".format(self.deps_cpp_info["zlib"].rootpath),
-             "--with-lzma={}".format(self.deps_cpp_info["lzma"].rootpath),
             host))
         return self._autotools
     

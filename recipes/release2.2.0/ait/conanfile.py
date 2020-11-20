@@ -11,7 +11,7 @@ class Ait(ConanFile):
     name = "ait"
     version = "2.2.0"
 
-    git_url = "https://pm.bsc.es/gitlab/ompss-at-fpga/ait"
+    git_url = "https://gitlab.bsc.es/ompss-at-fpga/ait"
     git_clone_name = "ait_source"
 
     git_branch =  "ompss-at-fpga-release/2.2.0"
@@ -20,7 +20,6 @@ class Ait(ConanFile):
     default_options = {"mode":"public", "backend":"all"}
 
     build_policy="missing"
-    no_copy_source=True
 
     def configure(self):
         self.options.python3 = platform.python_version()
@@ -34,7 +33,7 @@ class Ait(ConanFile):
     def package(self):
         tempdir = tempfile.mkdtemp()
         tempdir2 = tempfile.mkdtemp()
-        self.run("cp -r {4}/* {0} && cd {0}/ait_source && ./install.sh {1} {2} {3}".format(tempdir,tempdir2, str(self.options.mode), str(self.options.backend), self.source_folder))
+        self.run("cp -r {0}/* {1} && cd {1}/ait_source && ./install.sh {2} {3} ".format(self.source_folder, tempdir,tempdir2, str(self.options.backend)))
         self.copy("*", src=tempdir2)
         self.run("cd {} && tar cf scripts.tar.gz scripts".format(self.package_folder))
 

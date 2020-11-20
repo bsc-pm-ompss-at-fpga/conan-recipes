@@ -11,7 +11,7 @@ class Nanos5Conan(ConanFile):
     name = "nanos5_internal"
     version = "2.2.0"
     git_clone_name = "nanos5_source"
-    git_url = "https://pm.bsc.es/gitlab/ompss-at-fpga/nanox"
+    git_url = "https://gitlab.bsc.es/ompss-at-fpga/nanox"
 
     settings = "os", "compiler", "build_type", "arch"
 

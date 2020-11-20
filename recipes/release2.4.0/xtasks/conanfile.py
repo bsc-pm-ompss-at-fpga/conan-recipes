@@ -2,15 +2,16 @@ from conans import ConanFile
 
 class Nanos6Conan(ConanFile):
     name = "xtasks"
-    version = "2.2.0-stub"
+    version = "2.4.0-stub"
     git_clone_name = "xtasks"
-    git_url = "https://pm.bsc.es/gitlab/ompss-at-fpga/xtasks"
+    git_url = "https://gitlab.bsc.es/ompss-at-fpga/xtasks"
     settings = "os", "compiler", "arch"
- 
+    git_branch =  "ompss-at-fpga-release/2.4.0"
+
     build_policy="missing"
 
     def source(self):
-        self.run("git clone {} {}".format(self.git_url, self.git_clone_name))
+        self.run("git clone -b {} {} {}".format(self.git_branch, self.git_url, self.git_clone_name))
 
     def build(self):
         if str(self.settings.arch) == "armv8":

@@ -8,11 +8,11 @@ import re
 
 class Extrae(ConanFile):
     name = "extrae"
-    version = "2.2.0"
+    version = "2.4.0"
 
     git_clone_name = "extrae"
-    git_url = "https://pm.bsc.es/gitlab/ompss-at-fpga/extrae"
-    git_branch =  "ompss-at-fpga-release/2.2.0"
+    git_url = "https://gitlab.bsc.es/ompss-at-fpga/extrae"
+    git_branch =  "ompss-at-fpga-release/2.4.0"
     settings = "os", "compiler", "build_type", "arch"
     build_policy="missing"
     requires = ["papi/6.0.0",  "libxml2/bsc", "zlib/bsc"]

@@ -19,7 +19,7 @@ class McxxConan(ConanFile):
     version = "latest"
     settings = "compiler", "arch", "arch_build"
     
-    git_url = "https://pm.bsc.es/gitlab/ompss-at-fpga/mcxx"
+    git_url = "https://gitlab.bsc.es/ompss-at-fpga/mcxx"
     git_branch = "ompss-at-fpga-release/2.2.0"
     build_requires = ["sqlite3/3.30.1"]
     build_policy="missing"
