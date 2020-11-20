@@ -11,7 +11,7 @@ class Ait(ConanFile):
     name = "ait"
     version = "2.2.0"
 
-    git_url = "https://gitlab.bsc.es/ompss-at-fpga/ait"
+    git_url = "https://pm.bsc.es/ompss-at-fpga/ait"
     git_clone_name = "ait_source"
 
     git_branch =  "ompss-at-fpga-release/2.2.0"
